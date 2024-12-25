@@ -77,6 +77,6 @@ async def process_start_bot(message: Message, user_id, first_name):
         keyboard = main_admin_menu
 
     await message.answer(
-        text=f'Привет, {first_name}',
+        text=f'Привет, {first_name}! Сколько жмешь?',
         reply_markup=keyboard
     )
