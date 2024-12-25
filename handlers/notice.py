@@ -2,7 +2,7 @@ import asyncio
 from random import randint
 import json
 
-from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, BufferedInputFile
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.exceptions import TelegramRetryAfter, TelegramBadRequest, TelegramForbiddenError
@@ -27,9 +27,28 @@ async def show_info_about_users_bot(message: Message, state: FSMContext):
     await message.answer(
         text=text,
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text='📨 Сделать рассылку', callback_data='mailing')]
+            [InlineKeyboardButton(text='📨 Сделать рассылку', callback_data='mailing')],
+            [InlineKeyboardButton(text='⬇️ Выгрузить id', callback_data='down_users_id')]
         ])
     )
+
+
+# Выгрузка id всех пользователей
+@dp.callback_query(F.data == 'down_users_id', IsAdmin())
+async def down_users_id(query: CallbackQuery, state: FSMContext):
+    users_id = await db_manage.get_users_id()
+
+    users_id_str = ''
+    for user_id in users_id:
+        users_id_str += f'{user_id[0]}\n'
+
+    await query.message.answer_document(
+        document=BufferedInputFile(
+            file=users_id_str.encode(),
+            filename='users.txt'
+        )
+    )
+
 
 # Настройка рассылки 
 @dp.callback_query(F.data == 'mailing', IsAdmin())

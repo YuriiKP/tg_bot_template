@@ -138,7 +138,7 @@ class DB_M:
         return count[0]
     
 
-    async def get_users_id(self):
+    async def get_users_id(self) -> list:
         users_id = await db_manage.fetch(
             '''
             SELECT user_id
@@ -155,6 +155,7 @@ db_manage = DB_M(DB_URI)
 
 # async def test():
 #     users_id = await db_manage.get_users_id()
-#     print(len(users_id))
+#     for user_id in users_id:
+#         print(user_id[0])
 
 # asyncio.run(test())
