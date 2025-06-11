@@ -1,1 +1,1 @@
-# tg_bot_best_pattern
+# tg_bot_pattern
