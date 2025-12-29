@@ -7,17 +7,24 @@ from aiogram.client.default import DefaultBotProperties
 
 from dotenv import load_dotenv, find_dotenv
 
+from storage import DB_M 
 
-load_dotenv(find_dotenv())
-TOKEN = os.getenv('TOKEN')
-OWNER = os.getenv('OWNER')
-
-DB_URI = os.getenv('DB_URI')
 
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+load_dotenv()
+
+# Тг бот
+TG_TOKEN = os.getenv('TG_TOKEN')
+TG_ADMIN = os.getenv('TG_ADMIN')
+SQLALCHEMY_DATABASE_URL_TG = os.getenv('SQLALCHEMY_DATABASE_URL_TG')
+
+
+bot = Bot(TG_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher()
+
+# Инициализация базы данных
+db_manage = DB_M(SQLALCHEMY_DATABASE_URL_TG)
 
 
 deep_links_admin_manage = {}

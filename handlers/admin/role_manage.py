@@ -5,9 +5,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.deep_linking import create_start_link
 from aiogram import F
 
-from loader import dp, bot, OWNER, deep_links_admin_manage, symbols
-from storage import db_manage
-from keyboards import user_menu, btn_admins
+from loader import dp, bot, TG_ADMIN, deep_links_admin_manage, symbols
+from loader import db_manage
+from keyboards import *
 from filters import IsAdmin, IsMainAdmin
 from utils import State_Ban_Admin
 from utils import CB_ModerAdmins
@@ -23,10 +23,10 @@ async def admin_manage_menu(message: Message, state: FSMContext):
 
     text = '<b>ВСЕ АДМИНИСТРАТОРЫ</b>'
     for admin in admins:
-        if int(admin[0]) == int(OWNER):
+        if int(admin.user_id) == int(TG_ADMIN):
             pass
         else:
-            text += f'\n\n{admin[5]} <a href="tg://user?id={admin[0]}">{admin[2]}</a> ID: {admin[0]}'
+            text += f'\n\n{admin.username} <a href="tg://user?id={admin.user_id}">{admin.first_name}</a> ID: <code>{admin.user_id}</code>'
 
     await message.answer(
         text=text,

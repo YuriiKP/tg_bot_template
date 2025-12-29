@@ -1,12 +1,15 @@
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, BotCommandScopeDefault
 from aiogram.filters import CommandStart, CommandObject
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram import F
 
 from loader import dp, bot, deep_links_admin_manage
-from storage import db_manage
-from keyboards import user_menu, admin_menu, main_admin_menu
+from loader import db_manage
+from keyboards import *
 from filters import IsAdmin, IsMainAdmin, IsUser
+
+from commands import user_commands
     
 
 
@@ -53,11 +56,10 @@ async def start_command(message: Message, state: FSMContext):
 
 
 # Старт с колбэка
-@dp.callback_query(F.data == 'start')
+@dp.callback_query(F.data == 'btn_main_menu')
 async def inline_process_start_bot(query: CallbackQuery, state: FSMContext):
     await state.clear()
     
-    await query.message.delete()
     await state.clear()
     await process_start_bot(query.message, query.from_user.id, query.from_user.first_name)
 
@@ -67,16 +69,39 @@ async def inline_process_start_bot(query: CallbackQuery, state: FSMContext):
 async def process_start_bot(message: Message, user_id, first_name):
     user = await db_manage.get_user_by_id(user_id)
     
-    if user[5] == 'user':
-        keyboard = user_menu
-    
-    if user[5] == 'admin':
-        keyboard = admin_menu
-    
-    if user[5] == 'main_admin':
-        keyboard = main_admin_menu
+    await bot.set_my_commands(
+        commands=user_commands,
+        scope=BotCommandScopeDefault()
+        )
 
-    await message.answer(
-        text=f'Привет, {first_name}! Сколько жмешь?',
-        reply_markup=keyboard
-    )
+    menu_keyboards = {
+        'admin': admin_menu,
+        'main_admin': main_admin_menu
+    }
+
+
+    # Определяем клавиатуру и текст
+    if user.status_user in ('admin', 'main_admin') and message.text == '/start':
+        keyboard = menu_keyboards[user.status_user]
+        
+        await message.answer(
+            text=admin_main_menu_text,
+            reply_markup=keyboard
+        )
+
+
+    try:
+        await message.edit_text(
+            text=user_start_message(message.from_user.first_name),
+            reply_markup=user_main_menu()
+        )
+    except TelegramBadRequest:
+        await message.answer(
+            text=user_start_message(message.from_user.first_name),
+            reply_markup=user_main_menu()
+        )
+        try:
+            if message.text != '/start':
+                await message.delete()
+        except TelegramBadRequest:
+            pass  # Игнорируем, если уже удалено

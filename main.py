@@ -5,7 +5,7 @@ from aiogram.types import Message
 
 from loader import dp, bot
 from handlers import dp, bot
-from storage import db_manage
+from loader import db_manage
 
 
 

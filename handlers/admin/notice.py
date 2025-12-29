@@ -9,14 +9,14 @@ from aiogram.exceptions import TelegramRetryAfter, TelegramBadRequest, TelegramF
 from aiogram import F
 
 from loader import dp, bot
-from storage import db_manage
+from loader import db_manage
 from filters import IsAdmin
-from keyboards import about_users_bot
+from keyboards import *
 from utils import State_Mailing
 
 
 # Показать кол-во юзеров
-@dp.message(F.text == about_users_bot, IsAdmin())
+@dp.message(F.text == btn_about_users_bot, IsAdmin())
 async def show_info_about_users_bot(message: Message, state: FSMContext):
     await state.clear()
 
@@ -40,7 +40,7 @@ async def down_users_id(query: CallbackQuery, state: FSMContext):
 
     users_id_str = ''
     for user_id in users_id:
-        users_id_str += f'{user_id[0]}\n'
+        users_id_str += f'{user_id}\n'
 
     await query.message.answer_document(
         document=BufferedInputFile(
